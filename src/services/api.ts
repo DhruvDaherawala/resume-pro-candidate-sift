@@ -82,11 +82,14 @@ class ApiService {
     }
   }
 
-  // File upload with resume processing
+  // Resume processing with improved functionality
   async uploadResumes(files: File[], jobId: string): Promise<{ uploaded: number; processed: number }> {
     try {
-      // In a real implementation, this would use FormData to upload actual files
-      // For this example, we'll just send the count of files
+      // In a real implementation, this would use FormData to upload files
+      // For this example, we'll just send the count and jobId
+      
+      console.log(`Uploading ${files.length} resumes for job ${jobId}`);
+      
       const response = await fetch(`${API_BASE_URL}/candidates/upload-resumes`, {
         method: 'POST',
         headers: {
@@ -95,6 +98,8 @@ class ApiService {
         body: JSON.stringify({
           jobId,
           count: files.length,
+          // In a complete implementation, we would process the files here
+          // and send the extracted data, or send the files directly for server processing
         }),
       });
       
@@ -105,6 +110,36 @@ class ApiService {
       return await response.json();
     } catch (error) {
       console.error('Error uploading resumes:', error);
+      throw error;
+    }
+  }
+
+  // New method to extract information from a resume
+  async extractResumeInfo(file: File): Promise<any> {
+    try {
+      // In a real implementation, this would upload the file and process it
+      // For this example, we'll just simulate the API call
+      
+      const response = await fetch(`${API_BASE_URL}/candidates/extract-resume-info`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          filename: file.name,
+          fileSize: file.size,
+          fileType: file.type,
+          // In a real implementation, we would send the file content
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to extract resume information');
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Error extracting resume information:', error);
       throw error;
     }
   }

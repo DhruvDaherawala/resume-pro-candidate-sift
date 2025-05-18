@@ -1,10 +1,13 @@
 
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Candidate } from '@/types';
 import { apiService } from '@/services/api';
 import CandidateCard from '@/components/candidates/CandidateCard';
 import CandidateDetail from '@/components/candidates/CandidateDetail';
 import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
+import { FileUp } from 'lucide-react';
 
 const Candidates = () => {
   const { toast } = useToast();
@@ -86,9 +89,17 @@ const Candidates = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Candidates</h1>
-        <p className="mt-1 text-gray-600">View and manage all candidates</p>
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Candidates</h1>
+          <p className="mt-1 text-gray-600">View and manage all candidates</p>
+        </div>
+        <Link to="/upload-resumes">
+          <Button className="bg-hr-blue hover:bg-hr-darkBlue">
+            <FileUp className="mr-2" size={18} />
+            Upload Resumes
+          </Button>
+        </Link>
       </div>
 
       {/* Filters */}

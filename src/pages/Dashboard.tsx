@@ -5,6 +5,7 @@ import StatCard from '@/components/dashboard/StatCard';
 import JobOpeningCard from '@/components/dashboard/JobOpeningCard';
 import { apiService } from '@/services/api';
 import { DashboardStats, JobOpening } from '@/types';
+import { FileUp } from 'lucide-react';
 
 const Dashboard = () => {
   const [stats, setStats] = useState<DashboardStats | null>(null);
@@ -125,8 +126,16 @@ const Dashboard = () => {
               </Link>
               
               <Link
+                to="/upload-resumes"
+                className="flex items-center justify-center w-full px-4 py-3 bg-hr-blue rounded-md text-white hover:bg-hr-darkBlue transition-colors"
+              >
+                <FileUp className="mr-2" size={18} />
+                Upload New Resumes
+              </Link>
+              
+              <Link
                 to="/candidates"
-                className="block w-full text-center px-4 py-3 bg-hr-blue rounded-md text-white hover:bg-hr-darkBlue transition-colors"
+                className="block w-full text-center px-4 py-3 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
               >
                 View All Candidates
               </Link>

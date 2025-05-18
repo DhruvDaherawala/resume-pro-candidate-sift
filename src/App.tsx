@@ -11,6 +11,8 @@ import JobOpenings from "./pages/JobOpenings";
 import CreateJob from "./pages/CreateJob";
 import JobDetail from "./pages/JobDetail";
 import Candidates from "./pages/Candidates";
+import Dashboard from "./pages/Dashboard";
+import ResumeUpload from "./pages/ResumeUpload";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +42,11 @@ const App = () => (
           <Route path="/candidates" element={
             <MainLayout>
               <Candidates />
+            </MainLayout>
+          } />
+          <Route path="/upload-resumes" element={
+            <MainLayout>
+              <ResumeUpload />
             </MainLayout>
           } />
           <Route path="*" element={<NotFound />} />
