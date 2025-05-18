@@ -2,6 +2,7 @@
 import React, { useState, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { apiService } from '@/services/api';
+import { Upload, FileText } from 'lucide-react';
 
 interface ResumeUploaderProps {
   jobId: string;
@@ -13,6 +14,7 @@ const ResumeUploader = ({ jobId, onUploadComplete }: ResumeUploaderProps) => {
   const [dragActive, setDragActive] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Handle drag events
@@ -87,6 +89,22 @@ const ResumeUploader = ({ jobId, onUploadComplete }: ResumeUploaderProps) => {
     setFiles(files.filter((_, i) => i !== index));
   };
 
+  // Simulate progress for better UX
+  const simulateProgress = () => {
+    let currentProgress = 0;
+    const interval = setInterval(() => {
+      currentProgress += Math.floor(Math.random() * 10) + 5;
+      if (currentProgress > 90) {
+        clearInterval(interval);
+        setProgress(90); // Hold at 90% until complete
+      } else {
+        setProgress(currentProgress);
+      }
+    }, 500);
+    
+    return () => clearInterval(interval);
+  };
+
   // Upload files
   const handleUpload = async () => {
     if (files.length === 0) {
@@ -100,7 +118,16 @@ const ResumeUploader = ({ jobId, onUploadComplete }: ResumeUploaderProps) => {
     
     try {
       setUploading(true);
+      setProgress(0);
+      
+      // Start progress simulation
+      const stopProgress = simulateProgress();
+      
       const result = await apiService.uploadResumes(files, jobId);
+      
+      // Complete progress
+      setProgress(100);
+      stopProgress();
       
       toast({
         title: "Resumes uploaded successfully",
@@ -136,20 +163,11 @@ const ResumeUploader = ({ jobId, onUploadComplete }: ResumeUploaderProps) => {
         onDrop={handleDrop}
       >
         <div className="text-center">
-          <svg 
+          <Upload 
             className="mx-auto h-12 w-12 text-gray-400" 
-            stroke="currentColor" 
-            fill="none" 
-            viewBox="0 0 48 48" 
-            aria-hidden="true"
-          >
-            <path 
-              d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" 
-              strokeWidth={2} 
-              strokeLinecap="round" 
-              strokeLinejoin="round" 
-            />
-          </svg>
+            size={48}
+            strokeWidth={1.5}
+          />
           <div className="mt-4 flex text-sm text-gray-600 justify-center">
             <div className="relative cursor-pointer rounded-md font-medium text-hr-blue hover:text-hr-darkBlue focus-within:outline-none">
               <span onClick={onButtonClick}>Upload a file</span>
@@ -181,9 +199,7 @@ const ResumeUploader = ({ jobId, onUploadComplete }: ResumeUploaderProps) => {
             {files.map((file, index) => (
               <li key={index} className="px-4 py-3 flex justify-between items-center">
                 <div className="flex items-center">
-                  <svg className="h-5 w-5 text-gray-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
-                  </svg>
+                  <FileText className="h-5 w-5 text-gray-400 mr-2" />
                   <span className="text-sm truncate max-w-xs">{file.name}</span>
                 </div>
                 <button
@@ -196,25 +212,38 @@ const ResumeUploader = ({ jobId, onUploadComplete }: ResumeUploaderProps) => {
               </li>
             ))}
           </ul>
-          <div className="px-4 py-3 bg-gray-50 flex justify-end">
-            <button
-              type="button"
-              onClick={handleUpload}
-              disabled={uploading}
-              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-hr-blue hover:bg-hr-darkBlue focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-hr-blue disabled:opacity-50"
-            >
-              {uploading ? (
-                <span className="flex items-center">
-                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Processing Resumes...
-                </span>
-              ) : (
-                'Upload and Process Resumes'
-              )}
-            </button>
+          <div className="px-4 py-3 bg-gray-50">
+            {uploading && (
+              <div className="mb-3">
+                <div className="w-full bg-gray-200 rounded-full h-2.5 mb-1">
+                  <div className="bg-hr-blue h-2.5 rounded-full" style={{ width: `${progress}%` }}></div>
+                </div>
+                <p className="text-xs text-gray-500 text-right">{progress}% complete</p>
+              </div>
+            )}
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={handleUpload}
+                disabled={uploading}
+                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-hr-blue hover:bg-hr-darkBlue focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-hr-blue disabled:opacity-50 flex items-center"
+              >
+                {uploading ? (
+                  <span className="flex items-center">
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Processing Resumes...
+                  </span>
+                ) : (
+                  <span className="flex items-center">
+                    <Upload className="mr-2 h-4 w-4" />
+                    Upload and Process Resumes
+                  </span>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}

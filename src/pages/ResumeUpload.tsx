@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import ResumeUploader from '@/components/resumes/ResumeUploader';
+import { FileText } from 'lucide-react';
 
 const ResumeUpload = () => {
   const { toast } = useToast();
@@ -29,11 +30,14 @@ const ResumeUpload = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Upload Resumes</h1>
-        <p className="mt-1 text-gray-600">
-          Upload candidate resumes for processing and matching
-        </p>
+      <div className="flex items-center gap-3">
+        <FileText size={32} className="text-hr-blue" />
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Upload Resumes</h1>
+          <p className="mt-1 text-gray-600">
+            Upload candidate resumes for processing and matching
+          </p>
+        </div>
       </div>
 
       <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
