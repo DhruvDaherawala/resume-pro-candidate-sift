@@ -1,8 +1,7 @@
-
 import { Candidate, JobOpening, DashboardStats } from "../types";
 
-// API base URL
-const API_BASE_URL = 'http://localhost:5000/api';
+// API base URL - using environment variable with fallback to localhost
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
 // Real API service connecting to MongoDB backend
 class ApiService {
