@@ -1,185 +1,135 @@
 
 import { Candidate, JobOpening, DashboardStats } from "../types";
 
-// Mock API service (to be replaced with actual API calls)
+// API base URL
+const API_BASE_URL = 'http://localhost:5000/api';
+
+// Real API service connecting to MongoDB backend
 class ApiService {
   // Dashboard stats
   async getDashboardStats(): Promise<DashboardStats> {
-    // In a real app, this would fetch from your backend
-    return {
-      openPositions: 12,
-      totalCandidates: 256,
-      shortlistedCandidates: 42,
-      newCandidates: 28,
-      hiringRate: 15.4,
-    };
+    try {
+      const response = await fetch(`${API_BASE_URL}/dashboard/stats`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch dashboard stats');
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching dashboard stats:', error);
+      // Fallback to mock data if the API request fails
+      return {
+        openPositions: 0,
+        totalCandidates: 0,
+        shortlistedCandidates: 0,
+        newCandidates: 0,
+        hiringRate: 0,
+      };
+    }
   }
 
   // Job openings
   async getJobOpenings(): Promise<JobOpening[]> {
-    // In a real app, this would fetch from your backend
-    return [
-      {
-        id: "1",
-        title: "Frontend Developer",
-        department: "Engineering",
-        location: "Remote",
-        type: "full-time",
-        status: "active",
-        description: "We are looking for a skilled frontend developer...",
-        requirements: ["React", "TypeScript", "CSS/Tailwind", "3+ years experience"],
-        createdAt: "2025-04-01",
-        candidateCount: 45,
-        shortlistedCount: 8,
-      },
-      {
-        id: "2",
-        title: "UX Designer",
-        department: "Design",
-        location: "New York, NY",
-        type: "full-time",
-        status: "active",
-        description: "We need a talented UX designer to join our team...",
-        requirements: ["Figma", "User Research", "Prototyping", "2+ years experience"],
-        createdAt: "2025-04-10",
-        candidateCount: 32,
-        shortlistedCount: 6,
-      },
-      {
-        id: "3",
-        title: "Data Scientist",
-        department: "Data",
-        location: "Remote",
-        type: "contract",
-        status: "active",
-        description: "Looking for a data scientist with ML experience...",
-        requirements: ["Python", "Machine Learning", "Data Analysis", "5+ years experience"],
-        createdAt: "2025-04-15",
-        candidateCount: 28,
-        shortlistedCount: 4,
-      },
-    ];
+    try {
+      const response = await fetch(`${API_BASE_URL}/jobs`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch job openings');
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching job openings:', error);
+      return [];
+    }
   }
 
   async createJobOpening(jobOpening: Omit<JobOpening, "id" | "createdAt" | "candidateCount" | "shortlistedCount">): Promise<JobOpening> {
-    // In a real app, this would post to your backend
-    const newJob: JobOpening = {
-      ...jobOpening,
-      id: Math.random().toString(36).substr(2, 9),
-      createdAt: new Date().toISOString().split("T")[0],
-      candidateCount: 0,
-      shortlistedCount: 0,
-    };
-    console.log("Created new job opening:", newJob);
-    return newJob;
+    try {
+      const response = await fetch(`${API_BASE_URL}/jobs`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(jobOpening),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to create job opening');
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Error creating job opening:', error);
+      throw error;
+    }
   }
 
   // Candidates
   async getCandidates(jobId?: string): Promise<Candidate[]> {
-    // In a real app, this would fetch filtered candidates from your backend
-    const candidates: Candidate[] = [
-      {
-        id: "1",
-        name: "Alex Johnson",
-        email: "alex.j@example.com",
-        phone: "555-123-4567",
-        skills: ["React", "TypeScript", "Node.js", "GraphQL"],
-        experience: [
-          {
-            role: "Senior Frontend Developer",
-            company: "Tech Co",
-            duration: "2020-2023",
-            description: "Led frontend development for multiple products",
-          },
-          {
-            role: "Frontend Developer",
-            company: "StartUp Inc",
-            duration: "2018-2020",
-            description: "Built responsive web applications",
-          },
-        ],
-        education: [
-          {
-            degree: "B.S. Computer Science",
-            institution: "University of Technology",
-            year: "2018",
-          },
-        ],
-        matchScore: 92,
-        status: "shortlisted",
-      },
-      {
-        id: "2",
-        name: "Sam Wilson",
-        email: "sam.w@example.com",
-        skills: ["JavaScript", "React", "CSS", "HTML"],
-        experience: [
-          {
-            role: "Frontend Developer",
-            company: "Web Solutions",
-            duration: "2019-2023",
-          },
-        ],
-        education: [
-          {
-            degree: "B.A. Design",
-            institution: "Creative Arts University",
-            year: "2019",
-          },
-        ],
-        matchScore: 78,
-        status: "new",
-      },
-      {
-        id: "3",
-        name: "Jamie Lee",
-        email: "jamie.l@example.com",
-        phone: "555-987-6543",
-        skills: ["React", "Redux", "TypeScript", "Node.js", "MongoDB"],
-        experience: [
-          {
-            role: "Full Stack Developer",
-            company: "Global Tech",
-            duration: "2017-2023",
-            description: "Developed full stack applications with React and Node.js",
-          },
-        ],
-        education: [
-          {
-            degree: "M.S. Computer Engineering",
-            institution: "Tech Institute",
-            year: "2017",
-          },
-        ],
-        matchScore: 95,
-        status: "shortlisted",
-      },
-    ];
-    
-    return jobId ? candidates.filter(c => Math.random() > 0.3) : candidates;
+    try {
+      const url = jobId 
+        ? `${API_BASE_URL}/candidates/job/${jobId}`
+        : `${API_BASE_URL}/candidates`;
+      
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch candidates');
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching candidates:', error);
+      return [];
+    }
   }
 
   // File upload with resume processing
   async uploadResumes(files: File[], jobId: string): Promise<{ uploaded: number; processed: number }> {
-    // In a real app, this would upload files to your backend
-    console.log(`Uploading ${files.length} resumes for job ${jobId}`);
-    
-    // Simulate API call
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          uploaded: files.length,
-          processed: files.length,
-        });
-      }, 2000);
-    });
+    try {
+      // In a real implementation, this would use FormData to upload actual files
+      // For this example, we'll just send the count of files
+      const response = await fetch(`${API_BASE_URL}/candidates/upload-resumes`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          jobId,
+          count: files.length,
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to upload resumes');
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Error uploading resumes:', error);
+      throw error;
+    }
   }
 
   // Shortlist candidates
   async shortlistCandidate(candidateId: string, jobId: string): Promise<boolean> {
-    // In a real app, this would update the candidate status in your backend
-    console.log(`Shortlisting candidate ${candidateId} for job ${jobId}`);
-    return true;
+    try {
+      const response = await fetch(`${API_BASE_URL}/candidates/${candidateId}/shortlist`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ jobId }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to shortlist candidate');
+      }
+      
+      const data = await response.json();
+      return data.success;
+    } catch (error) {
+      console.error('Error shortlisting candidate:', error);
+      return false;
+    }
   }
 }
 
